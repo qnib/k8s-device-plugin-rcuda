@@ -1,0 +1,46 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: qnib-device-plugin-rcuda-daemonset
+  namespace: kube-system
+spec:
+  template:
+    metadata:
+      # Mark this pod as a critical add-on; when enabled, the critical add-on scheduler
+      # reserves resources for critical add-on pods so that they can be rescheduled after
+      # a failure.  This annotation works in tandem with the toleration below.
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ""
+      labels:
+        name: qnib-device-plugin-rcuda-ds
+    spec:
+      nodeSelector:
+        houdini.gpu: "true"
+      tolerations:
+      # Allow this pod to be rescheduled while the node is in "critical add-ons only" mode.
+      # This, along with the annotation above marks this pod as a critical add-on.
+      - key: CriticalAddonsOnly
+        operator: Exists
+      - key: qnib.org/rcuda
+        operator: Exists
+        effect: NoSchedule
+      containers:
+      - image: qnib/k8s-device-plugin-rcuda:1.11-0
+        name: qnib-device-plugin-rcuda-ctr
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+        volumeMounts:
+          - name: device-plugin
+            mountPath: /var/lib/kubelet/device-plugins
+          - name: device-plugin-config
+            mountPath: /etc/qnib-device-plugin/
+
+      volumes:
+        - name: device-plugin
+          hostPath:
+            path: /var/lib/kubelet/device-plugins
+        - name: device-plugin-config
+          hostPath:
+            path: /etc/qnib-device-plugin/

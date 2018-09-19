@@ -1,0 +1,14 @@
+workspace:
+  base: /usr/local/src
+  path: /github.com/qnib/k8s-device-plugin-rcuda
+
+pipeline:
+  #test:
+  #    image: qnib/uplain-golang
+  #    commands:
+  #      - go test ./...
+  x86:
+      image: qnib/uplain-golang
+      commands:
+        - mkdir -p bin/x86/v0.11
+        - go build -o bin/x86/v0.11/qnib-device-plugin

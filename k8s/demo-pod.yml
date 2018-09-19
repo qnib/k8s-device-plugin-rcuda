@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo-pod
+spec:
+  containers:
+    - name: demo-container-1
+      image: ubuntu:latest
+      command: ["tail"]
+      args: ["-f", "/dev/null"]
+      resources:
+        limits:
+          qnib.org/rcuda: 1
